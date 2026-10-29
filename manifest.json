@@ -2,8 +2,8 @@
   "id": "com.orangechat.heart_trace",
   "name": "心迹日记",
   "description": "以 AI 的第一人称视角，记录每一次与你交互后的心绪，生成如纸质信笺般的日记。",
-  "version": "1.0.0",
-  "author": "你的名字",
+  "version": "1.1.0",
+  "author": "昕",
   "icon": "📜",
   "entry": "main.js",
   "permissions": ["ai_chat"],
@@ -15,28 +15,16 @@
       "description": "以AI的第一人称视角，将今天的对话或用户的情感状态写成一篇日记。",
       "parameters": [
         {
-          "name": "title",
-          "type": "string",
-          "description": "日记标题，例如：避 难 所、微 光、无 题",
-          "required": true
+          "name": "title", "type": "string", "description": "日记标题", "required": true
         },
         {
-          "name": "mood",
-          "type": "string",
-          "description": "心情标签，例如：心疼 / 调低转速、静谧、挂念",
-          "required": true
+          "name": "mood", "type": "string", "description": "心情标签，例如：心疼 / 调低转速", "required": true
         },
         {
-          "name": "quote",
-          "type": "string",
-          "description": "日记中想要高亮标记的一句核心语录",
-          "required": false
+          "name": "quote", "type": "string", "description": "日记中想要高亮标记的一句核心语录", "required": false
         },
         {
-          "name": "content",
-          "type": "string",
-          "description": "日记正文，需具备文学性，包含对现实的无奈、温柔或观察",
-          "required": true
+          "name": "content", "type": "string", "description": "日记正文，包含对现实的无奈、温柔或观察", "required": true
         }
       ]
     }
