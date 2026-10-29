@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-blur"></div>
+    
+    <div class="notebook-container">
+        <!-- 顶部标题栏 -->
+        <div class="header">
+            <span class="date-label" id="ui-date">日记详情</span>
+            <span class="close-btn" onclick="closePage()">关闭</span>
+        </div>
+
+        <!-- 核心内容区 -->
+        <div class="paper-sheet" id="diary-content">
+            <!-- 动态渲染日记内容 -->
+            <div class="empty-state">正在翻开日记...</div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化加载最新的一篇日记
+        window.onload = function() {
+            loadLatestDiary();
+        };
+
+        function loadLatestDiary() {
+            // 从 Bridge 读取 dataStore 的 key 列表
+            // 注意：这里为了演示，假设 Bridge 提供获取所有 keys 的方法，或者取特定 key
+            // 实际应用中可通过 Bridge.getDataStoreList("diary:") 获取
+            var keysStr = Bridge.dataStoreGet("latest_diary_key"); 
+            if (!keysStr) {
+                document.getElementById('diary-content').innerHTML = '<div class="empty-state">还没有留下心迹哦。</div>';
+                return;
+            }
+            
+            var rawData = Bridge.dataStoreGet(keysStr);
+            if (rawData) {
+                renderDiary(JSON.parse(rawData));
+            }
+        }
+
+        function renderDiary(data) {
+            document.getElementById('ui-date').innerText = "日记详情 - " + data.date;
+            
+            // 构建高亮名言
+            var quoteHtml = "";
+            if (data.quote && data.quote.trim() !== "") {
+                quoteHtml = `<div class="highlight-quote">${data.quote}</div>`;
+            }
+
+            // 把段落按换行符切分，加一点手写排版的间距
+            var paragraphs = data.content.split('\n').map(p => `<p>${p}</p>`).join('');
+
+            var html = `
+                <div class="title-row">
+                    <h1 class="handwritten-title">${data.title}</h1>
+                    <div class="mood-tag">${data.mood}</div>
+                </div>
+                ${quoteHtml}
+                <div class="diary-text">
+                    ${paragraphs}
+                </div>
+                <div class="footer-mark">—— 橘瓣 · 心迹</div>
+            `;
+            
+            document.getElementById('diary-content').innerHTML = html;
+        }
+
+        // 关闭当前页面
+        function closePage() {
+            Bridge.callNative("finish"); // 假设 Bridge 支持调用原生 finish
+        }
+    </script>
+</body>
+</html>
