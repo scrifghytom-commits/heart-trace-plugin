@@ -1,0 +1,147 @@
+/* 重置基础样式 */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Georgia", "Songti SC", "STSong", serif; /* 优先使用宋体类字体 */
+    background-color: #e5e3df; /* 模拟图片外围的模糊绿色背景底色 */
+    color: #333;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 10vh;
+    overflow-y: auto;
+}
+
+/* 顶部夹子效果（使用伪元素和渐变模拟） */
+.notebook-container {
+    position: relative;
+    width: 90%;
+    max-width: 450px;
+    background: #fcfaf5; /* 纸张的暖白色 */
+    border-radius: 4px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+    padding: 20px 24px 40px;
+    min-height: 80vh;
+    margin-bottom: 50px;
+}
+
+/* 模拟纸夹 */
+.notebook-container::before {
+    content: '';
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 30px;
+    background: linear-gradient(to bottom, #b9c9b3, #9ea896);
+    border-radius: 6px 6px 2px 2px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+
+.notebook-container::after {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #fcfaf5; /* 圆环内部镂空 */
+    border: 5px solid #8f9d89;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 11;
+}
+
+/* 顶部栏 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    color: #999;
+    font-size: 12px;
+    margin-bottom: 30px;
+    font-family: sans-serif;
+}
+
+/* 标题与标签同行 */
+.title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+/* 手写风格大标题 */
+.handwritten-title {
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: 4px;
+    color: #2c2c2c;
+    font-family: "Kaiti SC", "STKaiti", "KaiTi", serif; /* 优先楷体 */
+}
+
+/* 心情标签（模拟图片中的高亮便签） */
+.mood-tag {
+    background-color: #f2e8b3; /* 荧光淡黄色 */
+    padding: 4px 10px;
+    font-size: 13px;
+    color: #665c3b;
+    border-radius: 2px;
+    font-family: "Kaiti SC", "STKaiti", serif;
+    margin-top: 6px;
+    transform: rotate(1deg); /* 微微倾斜显生动 */
+    box-shadow: 1px 1px 0px rgba(0,0,0,0.05);
+}
+
+/* 高亮名言 */
+.highlight-quote {
+    display: inline;
+    background: linear-gradient(transparent 60%, #f7e5b7 40%); /* 底部荧光笔效果 */
+    font-size: 16px;
+    line-height: 2;
+    color: #111;
+    font-weight: 500;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    padding: 0 4px;
+}
+
+/* 日记正文 */
+.diary-text {
+    font-size: 16px;
+    line-height: 2.2;
+    color: #2c2c2c;
+    text-align: justify;
+    letter-spacing: 1.5px;
+    font-family: "Kaiti SC", "STKaiti", "KaiTi", serif; /* 正文也使用楷体模拟手写 */
+}
+
+.diary-text p {
+    margin-bottom: 16px;
+    /* 文字微微向右下角错位，模拟手写的不规则 */
+    transform: translateY(1px); 
+}
+
+/* 底部落款 */
+.footer-mark {
+    margin-top: 40px;
+    text-align: right;
+    color: #aaa;
+    font-size: 12px;
+    font-family: "Kaiti SC", "STKaiti", serif;
+}
+
+/* 空状态 */
+.empty-state {
+    text-align: center;
+    color: #999;
+    margin-top: 50px;
+    font-family: sans-serif;
+}
