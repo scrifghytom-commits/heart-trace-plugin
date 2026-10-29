@@ -1,28 +1,30 @@
-/* 重置基础样式 */
+/* 重置 & 兼容 */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
-    font-family: "Georgia", "Songti SC", "STSong", serif; /* 优先使用宋体类字体 */
-    background-color: #e5e3df; /* 模拟图片外围的模糊绿色背景底色 */
+    font-family: "Georgia", "Songti SC", "STSong", serif;
+    background-color: #e5e3df;
     color: #333;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: flex-start;
     padding-top: 10vh;
+    padding-bottom: env(safe-area-inset-bottom, 20px); /* 适配全面屏 */
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
-/* 顶部夹子效果（使用伪元素和渐变模拟） */
 .notebook-container {
     position: relative;
-    width: 90%;
+    width: 92%;
     max-width: 450px;
-    background: #fcfaf5; /* 纸张的暖白色 */
+    background: #fcfaf5;
     border-radius: 4px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
     padding: 20px 24px 40px;
@@ -30,7 +32,7 @@ body {
     margin-bottom: 50px;
 }
 
-/* 模拟纸夹 */
+/* 修正伪元素在部分低端机的兼容问题 */
 .notebook-container::before {
     content: '';
     position: absolute;
@@ -54,23 +56,34 @@ body {
     width: 26px;
     height: 26px;
     border-radius: 50%;
-    background: #fcfaf5; /* 圆环内部镂空 */
+    background: #fcfaf5;
     border: 5px solid #8f9d89;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
     z-index: 11;
 }
 
-/* 顶部栏 */
+/* 顶部栏 & 编辑按钮 */
 .header {
     display: flex;
     justify-content: space-between;
     color: #999;
-    font-size: 12px;
+    font-size: 13px;
     margin-bottom: 30px;
     font-family: sans-serif;
 }
 
-/* 标题与标签同行 */
+.header-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.action-btn, .close-btn {
+    color: #666;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* 标题行 */
 .title-row {
     display: flex;
     justify-content: space-between;
@@ -78,58 +91,51 @@ body {
     margin-bottom: 24px;
 }
 
-/* 手写风格大标题 */
 .handwritten-title {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 500;
     letter-spacing: 4px;
     color: #2c2c2c;
-    font-family: "Kaiti SC", "STKaiti", "KaiTi", serif; /* 优先楷体 */
+    font-family: "Kaiti SC", "STKaiti", "KaiTi", "Songti SC", serif;
 }
 
-/* 心情标签（模拟图片中的高亮便签） */
 .mood-tag {
-    background-color: #f2e8b3; /* 荧光淡黄色 */
+    background-color: #f2e8b3;
     padding: 4px 10px;
     font-size: 13px;
     color: #665c3b;
     border-radius: 2px;
     font-family: "Kaiti SC", "STKaiti", serif;
     margin-top: 6px;
-    transform: rotate(1deg); /* 微微倾斜显生动 */
     box-shadow: 1px 1px 0px rgba(0,0,0,0.05);
 }
 
-/* 高亮名言 */
+/* 高亮块 */
 .highlight-quote {
-    display: inline;
-    background: linear-gradient(transparent 60%, #f7e5b7 40%); /* 底部荧光笔效果 */
-    font-size: 16px;
+    display: inline-block; /* 解决部分手机换行不兼容 */
+    background: linear-gradient(transparent 60%, #f7e5b7 40%);
+    font-size: 15px;
     line-height: 2;
     color: #111;
-    font-weight: 500;
     letter-spacing: 1px;
     margin-bottom: 16px;
     padding: 0 4px;
 }
 
-/* 日记正文 */
+/* 正文 */
 .diary-text {
     font-size: 16px;
-    line-height: 2.2;
+    line-height: 2;
     color: #2c2c2c;
     text-align: justify;
-    letter-spacing: 1.5px;
-    font-family: "Kaiti SC", "STKaiti", "KaiTi", serif; /* 正文也使用楷体模拟手写 */
+    letter-spacing: 1.2px;
+    font-family: "Kaiti SC", "STKaiti", "KaiTi", "Songti SC", serif;
 }
 
 .diary-text p {
     margin-bottom: 16px;
-    /* 文字微微向右下角错位，模拟手写的不规则 */
-    transform: translateY(1px); 
 }
 
-/* 底部落款 */
 .footer-mark {
     margin-top: 40px;
     text-align: right;
@@ -138,10 +144,60 @@ body {
     font-family: "Kaiti SC", "STKaiti", serif;
 }
 
-/* 空状态 */
-.empty-state {
-    text-align: center;
-    color: #999;
-    margin-top: 50px;
-    font-family: sans-serif;
+/* === 编辑模式表单样式 === */
+.hidden {
+    display: none !important;
+}
+
+.edit-mode {
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-field {
+    margin-bottom: 20px;
+}
+
+.edit-field label {
+    display: block;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 6px;
+}
+
+.edit-input, .edit-textarea {
+    width: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    background: #fff;
+    color: #333;
+    outline: none;
+}
+
+.edit-input:focus, .edit-textarea:focus {
+    border-color: #b9c9b3;
+}
+
+.edit-textarea {
+    resize: vertical;
+    min-height: 150px;
+}
+
+.save-btn {
+    background-color: #8f9d89;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-family: inherit;
+}
+
+.save-btn:active {
+    opacity: 0.8;
 }
