@@ -3,166 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>心迹日记</title>
+    <title>心迹日记本</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* 列表页专属样式，修正排版 */
+        body { background-color: #e5e3df; margin: 0; padding: 0; }
+        .list-container { padding: 20px; max-width: 500px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: #333;}
+        .main-title { font-size: 20px; font-family: "Kaiti SC", "STKaiti", serif; margin: 0;}
+        .add-btn { background: #8f9d89; color: #fff; border: none; padding: 8px 16px; border-radius: 20px; font-size: 14px;}
+        .diary-card {
+            background: #fcfaf5; padding: 16px; border-radius: 8px; margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-decoration: none; display: block; color: inherit;
+        }
+        .card-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .card-title { font-size: 18px; font-weight: bold; font-family: "Kaiti SC", serif; color: #2c2c2c;}
+        .card-mood { background: #f2e8b3; padding: 2px 8px; font-size: 12px; border-radius: 4px; color: #665c3b;}
+        .card-preview { font-size: 14px; color: #666; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-footer { font-size: 12px; color: #aaa; margin-top: 10px; text-align: right;}
+        .empty-state { text-align: center; color: #999; margin-top: 50px; }
+    </style>
 </head>
 <body>
-    <div class="background-blur"></div>
-    
-    <div class="notebook-container">
-        <!-- 顶部标题栏 -->
+    <div class="list-container">
         <div class="header">
-            <span class="date-label" id="ui-date">日记详情</span>
-            <div class="header-actions">
-                <span id="edit-btn" class="action-btn" onclick="toggleEdit()">编辑</span>
-                <span class="close-btn" onclick="closePage()">关闭</span>
-            </div>
+            <h1 class="main-title">📜 心迹日记本</h1>
         </div>
-
-        <!-- 核心内容区 -->
-        <div class="paper-sheet" id="diary-view">
-            <div class="empty-state">正在翻开日记...</div>
-        </div>
-
-        <!-- 编辑区域 -->
-        <div class="paper-sheet edit-mode hidden" id="diary-edit">
-            <div class="edit-field">
-                <label>标题</label>
-                <input type="text" id="edit-title" class="edit-input">
-            </div>
-            <div class="edit-field">
-                <label>心情标签</label>
-                <input type="text" id="edit-mood" class="edit-input">
-            </div>
-            <div class="edit-field">
-                <label>高亮语录</label>
-                <input type="text" id="edit-quote" class="edit-input">
-            </div>
-            <div class="edit-field">
-                <label>正文</label>
-                <textarea id="edit-content" class="edit-textarea" rows="10"></textarea>
-            </div>
-            <button class="save-btn" onclick="saveDiary()">保存修改</button>
+        <div id="diary-list">
+            <div class="empty-state">正在翻阅...</div>
         </div>
     </div>
 
     <script>
-        // 环境兼容：如果网页版直接打开，使用 localStorage 模拟 Bridge
-        const isWeb = typeof Bridge === 'undefined';
-        let currentEntry = null;
-        let isEditing = false;
-
-        // 降级 Bridge API
-        const BridgeAPI = {
-            get: (key) => isWeb ? localStorage.getItem(key) : Bridge.dataStoreGet(key),
-            set: (key, val) => isWeb ? localStorage.setItem(key, val) : Bridge.dataStoreSet(key, val),
-            callJS: (func, params) => isWeb ? console.log("Web 模式模拟调用:", func, params) : Bridge.callJSFunction(func, params)
-        };
-
         window.onload = function() {
-            // 1. 优先从 URL 参数获取 id
-            const urlParams = new URLSearchParams(window.location.search);
-            const idFromUrl = urlParams.get('id');
-
-            if (idFromUrl) {
-                const rawData = BridgeAPI.get(idFromUrl);
-                if (rawData) {
-                    renderDiary(JSON.parse(rawData));
-                    return;
-                }
+            if (typeof Bridge === 'undefined') {
+                document.getElementById('diary-list').innerHTML = '<div class="empty-state">请在橘瓣 App 内打开此页面。</div>';
+                return;
             }
 
-            // 2. 没有 URL 参数则从最新一篇加载
-            const latestKey = BridgeAPI.get("latest_diary_key");
-            if (latestKey) {
-                const rawData = BridgeAPI.get(latestKey);
-                if (rawData) {
-                    renderDiary(JSON.parse(rawData));
+            // 调用 main.js 获取数据
+            try {
+                var resStr = Bridge.callJSFunction("get_all_diaries", "{}");
+                console.log("获取到数据:", resStr);
+                
+                // 解析返回的 JSON
+                var res = JSON.parse(resStr);
+                if (!res.success || !res.data) {
+                    document.getElementById('diary-list').innerHTML = '<div class="empty-state">暂无日记哦。</div>';
                     return;
                 }
-            }
 
-            // 3. 空状态
-            document.getElementById('diary-view').innerHTML = '<div class="empty-state">还没有留下心迹哦。</div>';
+                var diaries = JSON.parse(res.data);
+                if (diaries.length === 0) {
+                    document.getElementById('diary-list').innerHTML = '<div class="empty-state">还没有日记，去找 AI 写一篇吧！</div>';
+                    return;
+                }
+
+                var html = '';
+                for (var i = 0; i < diaries.length; i++) {
+                    var d = diaries[i];
+                    var preview = (d.content || "").replace(/\n/g, ' ').substring(0, 40) + '...';
+                    html += `
+                        <a href="ui/index.html?id=${d.id}" class="diary-card">
+                            <div class="card-header">
+                                <span class="card-title">${d.title}</span>
+                                <span class="card-mood">${d.mood}</span>
+                            </div>
+                            <div class="card-preview">${preview}</div>
+                            <div class="card-footer">${d.date}</div>
+                        </a>
+                    `;
+                }
+                document.getElementById('diary-list').innerHTML = html;
+            } catch(e) {
+                console.error(e);
+                document.getElementById('diary-list').innerHTML = '<div class="empty-state">读取失败: ' + e.message + '</div>';
+            }
         };
-
-        function renderDiary(data) {
-            currentEntry = data;
-            document.getElementById('ui-date').innerText = "日记详情 - " + data.date;
-            
-            let quoteHtml = (data.quote && data.quote.trim() !== "") 
-                ? `<div class="highlight-quote">${data.quote}</div>` 
-                : "";
-            
-            let paragraphs = data.content.split('\n').map(p => `<p>${p}</p>`).join('');
-
-            document.getElementById('diary-view').innerHTML = `
-                <div class="title-row">
-                    <h1 class="handwritten-title">${data.title}</h1>
-                    <div class="mood-tag" style="transform: rotate(${data.rotation || 1}deg);">${data.mood}</div>
-                </div>
-                ${quoteHtml}
-                <div class="diary-text">${paragraphs}</div>
-                <div class="footer-mark">—— 橘瓣 · 心迹</div>
-            `;
-
-            // 填充编辑表单
-            document.getElementById('edit-title').value = data.title;
-            document.getElementById('edit-mood').value = data.mood;
-            document.getElementById('edit-quote').value = data.quote || "";
-            document.getElementById('edit-content').value = data.content;
-        }
-
-        function toggleEdit() {
-            if (!currentEntry) return;
-            isEditing = !isEditing;
-            const view = document.getElementById('diary-view');
-            const editArea = document.getElementById('diary-edit');
-            const editBtn = document.getElementById('edit-btn');
-
-            if (isEditing) {
-                view.classList.add('hidden');
-                editArea.classList.remove('hidden');
-                editBtn.innerText = "取消";
-            } else {
-                view.classList.remove('hidden');
-                editArea.classList.add('hidden');
-                editBtn.innerText = "编辑";
-            }
-        }
-
-        function saveDiary() {
-            if (!currentEntry) return;
-            
-            const newData = {
-                ...currentEntry,
-                title: document.getElementById('edit-title').value,
-                mood: document.getElementById('edit-mood').value,
-                quote: document.getElementById('edit-quote').value,
-                content: document.getElementById('edit-content').value
-            };
-
-            // 调用后台更新 (在橘瓣内)，并更新本地 UI
-            if (!isWeb) {
-                BridgeAPI.callJS("update_diary", JSON.stringify(newData));
-            } else {
-                // Web 模拟保存
-                BridgeAPI.set(newData.id, JSON.stringify(newData));
-                BridgeAPI.set("latest_diary_key", newData.id);
-            }
-
-            currentEntry = newData;
-            renderDiary(newData);
-            toggleEdit(); // 退出编辑模式
-        }
-
-        function closePage() {
-            if (!isWeb) {
-                Bridge.callNative("finish");
-            } else {
-                alert("网页模式下点击了关闭");
-            }
-        }
     </script>
 </body>
 </html>
